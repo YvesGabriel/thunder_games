@@ -1,0 +1,17 @@
+# Padroniza finais de linha: LF no repositório, e o Git ajusta no checkout.
+# Evita o aviso "LF will be replaced by CRLF" no Windows.
+* text=auto
+
+# Arquivos que devem SEMPRE usar LF
+*.py   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+
+# Binários (nunca normalizar)
+*.png  binary
+*.jpg  binary
+*.mp4  binary
+*.wav  binary
+*.mp3  binary
+*.xlsx binary

@@ -33,7 +33,7 @@ for _s in (sys.stdout, sys.stderr):        # utf-8: evita quebra ao imprimir ace
         pass
 
 from config import settings
-from config import secrets as _secrets
+from services import claude
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IDEIAS = os.path.join(settings.IDEIAS_DIR, "ideias_atual.json")
@@ -88,54 +88,9 @@ Priorize jogos REAIS e atuais (lançamentos/novidades indie de Steam e Nintendo
 Switch, ou curiosidades de games). Variedade de gêneros entre as 5 sugestões."""
 
 
-def _cli_cfg():
-    return _secrets.claude_cli()
-
-
-def _resolve(cmd):
-    for c in (cmd, cmd + ".cmd", cmd + ".exe"):
-        found = shutil.which(c)
-        if found:
-            return found
-    return None
-
-
-def _call(prompt, timeout=240):
-    cmd, model = _cli_cfg()
-    exe = _resolve(cmd)
-    if not exe:
-        raise RuntimeError(
-            f"Não encontrei o Claude Code ('{cmd}') no PATH. Instale e faça login: "
-            "https://docs.claude.com/en/docs/claude-code — teste com: claude -p \"oi\"")
-    full = REGRAS + "\n\n---\n\n" + prompt
-    # o prompt vai pela ENTRADA PADRÃO (stdin) — no Windows, mandar como argumento
-    # corta textos longos com quebras de linha/emoji. Assim vai inteiro.
-    args = [exe, "-p", "--output-format", "json"]
-    if model:
-        args += ["--model", model]
-    p = subprocess.run(args, input=full, capture_output=True, text=True,
-                       encoding="utf-8", errors="replace", timeout=timeout)
-    raw = (p.stdout or "")
-    # guarda a resposta crua pra diagnóstico
-    try:
-        os.makedirs(os.path.join(HERE, "ideias"), exist_ok=True)
-        with open(os.path.join(HERE, "ideias", "_debug_resposta.txt"), "w", encoding="utf-8") as f:
-            f.write(f"returncode={p.returncode}\n\n--- STDOUT ---\n{raw}\n\n--- STDERR ---\n{p.stderr or ''}")
-    except Exception:
-        pass
-    if p.returncode != 0:
-        raise RuntimeError(f"claude CLI falhou (returncode {p.returncode}): "
-                           f"{(p.stderr or raw).strip()[:400]}")
-    out = raw.strip()
-    if not out:
-        raise RuntimeError(f"claude não retornou nada no stdout. stderr: {(p.stderr or '').strip()[:400]}")
-    try:                                   # --output-format json envelopa em {"result": "..."}
-        env = json.loads(out)
-        if isinstance(env, dict) and "result" in env:
-            return env["result"]
-    except Exception:
-        pass
-    return out
+def _call(prompt):
+    """Manda o prompt (com as REGRAS do canal como system) pro Claude local."""
+    return claude.call(prompt, system=REGRAS)
 
 
 def _json_do_texto(txt):

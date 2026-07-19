@@ -36,10 +36,10 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 from config import settings
+from services import voicebox
 
 HERE = settings.ROOT
 BIBLIOTECA = settings.BIBLIOTECA
-VOICEBOX_URL = settings.VOICEBOX_URL
 
 # Padrão do último vídeo aprovado
 STD_SUBTITLES = {
@@ -208,75 +208,6 @@ def cmd_new(args):
 # ---------------------------------------------------------------------------
 # narrate — VoiceBox
 # ---------------------------------------------------------------------------
-def _vb_profiles():
-    """Lista os perfis de voz do VoiceBox (GET /profiles)."""
-    with urllib.request.urlopen(f"{VOICEBOX_URL}/profiles", timeout=30) as r:
-        data = json.loads(r.read())
-    if isinstance(data, list):
-        return data
-    for k in ("profiles", "data", "items"):
-        if isinstance(data.get(k), list):
-            return data[k]
-    return []
-
-
-def _resolve_profile_id(vb):
-    """Descobre o profile_id: usa o informado, ou acha pelo nome em /profiles."""
-    if vb.get("profile_id"):
-        return vb["profile_id"]
-    name = vb.get("profile", "")
-    try:
-        profs = _vb_profiles()
-    except Exception as e:
-        raise RuntimeError(f"Não consegui listar os perfis do VoiceBox: {e}")
-    for p in profs:
-        if str(p.get("name", "")).strip().lower() == name.strip().lower():
-            return p.get("id") or p.get("profile_id")
-    nomes = [p.get("name") for p in profs]
-    raise RuntimeError(
-        f"Perfil '{name}' não encontrado no VoiceBox. Disponíveis: {nomes}\n"
-        "Ajuste 'voicebox.profile' (nome exato) ou 'voicebox.profile_id' no plano.json.")
-
-
-def _vb_history(req_timeout=15):
-    with urllib.request.urlopen(f"{VOICEBOX_URL}/history", timeout=req_timeout) as r:
-        d = json.loads(r.read())
-    return d.get("items", []) if isinstance(d, dict) else d
-
-
-_DONE = {"completed", "done", "success", "finished"}
-
-
-def _wait_generation(gen_id, timeout=420, interval=3):
-    """Espera a geração terminar e retorna o caminho do áudio (audio_path).
-
-    Enquanto o VoiceBox carrega o modelo/gera, o servidor fica ocupado e o
-    /history pode dar timeout — nesses casos a gente ignora e tenta de novo.
-    """
-    t0 = time.time()
-    last_log = 0
-    while time.time() - t0 < timeout:
-        try:
-            for it in _vb_history():
-                if it.get("id") == gen_id:
-                    if it.get("error"):
-                        raise RuntimeError(f"VoiceBox falhou: {it['error']}")
-                    if str(it.get("status", "")).lower() in _DONE:
-                        return True
-                    break
-        except RuntimeError:
-            raise
-        except Exception:
-            pass  # servidor ocupado gerando; segue tentando
-        if time.time() - last_log > 15:
-            log(f"  ...ainda gerando ({int(time.time()-t0)}s)")
-            last_log = time.time()
-        time.sleep(interval)
-    raise RuntimeError(
-        "Tempo esgotado esperando o VoiceBox. A fila pode ter travado — "
-        "FECHE e reabra o app VoiceBox e rode o `narrate` UMA vez só.")
-
-
 def cmd_narrate(project_dir, plano):
     text_path = _abs(project_dir, plano.get("narration_text", "assets/narration.txt"))
     out_wav = _abs(project_dir, plano.get("narration", "assets/narration.wav"))
@@ -284,42 +215,9 @@ def cmd_narrate(project_dir, plano):
         raise FileNotFoundError(f"Texto da narração não encontrado: {text_path}")
     text = open(text_path, encoding="utf-8").read().strip()
     vb = plano.get("voicebox", {})
-    profile_id = _resolve_profile_id(vb)
-    payload = {"text": text, "language": vb.get("language", "pt"), "profile_id": profile_id}
-    if vb.get("engine"):
-        payload["engine"] = vb["engine"]
-    if vb.get("instruct"):
-        payload["instruct"] = vb["instruct"]
-
-    log(f"Gerando narração no VoiceBox (perfil {profile_id})...")
-    req = urllib.request.Request(f"{VOICEBOX_URL}/generate",
-                                 data=json.dumps(payload).encode("utf-8"),
-                                 headers={"Content-Type": "application/json"}, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=300) as resp:
-            data = resp.read()
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "ignore")
-        raise RuntimeError(f"VoiceBox recusou (HTTP {e.code}): {body[:600]}")
-    except Exception as e:
-        raise RuntimeError(f"Falha ao falar com o VoiceBox: {e}\n"
-                           "Confirme que o app VoiceBox está aberto (API 127.0.0.1:17493).")
-    if data[:4] == b"RIFF":            # (algumas versões devolvem o áudio direto)
-        os.makedirs(os.path.dirname(out_wav), exist_ok=True)
-        open(out_wav, "wb").write(data)
-        log(f"Narração salva: {out_wav}")
-        return 0
-    # API assíncrona: retorna JSON com o id da geração -> espera e copia o áudio
-    try:
-        gen_id = json.loads(data).get("id")
-    except Exception:
-        gen_id = None
-    if not gen_id:
-        raise RuntimeError("Resposta inesperada do VoiceBox:\n" + data.decode("utf-8", "ignore")[:300])
-    log(f"Geração enfileirada ({gen_id}). Aguardando o VoiceBox terminar...")
-    _wait_generation(gen_id)
-    with urllib.request.urlopen(f"{VOICEBOX_URL}/audio/{gen_id}", timeout=180) as r:
-        audio = r.read()
+    profile_id = voicebox.resolve_profile_id(vb)
+    audio = voicebox.gerar(text, profile_id, language=vb.get("language", "pt"),
+                           engine=vb.get("engine"), instruct=vb.get("instruct"), on_log=log)
     os.makedirs(os.path.dirname(out_wav), exist_ok=True)
     open(out_wav, "wb").write(audio)
     log(f"Narração salva: {out_wav}")
