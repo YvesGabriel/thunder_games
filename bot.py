@@ -436,6 +436,15 @@ def handle(text):
 
 def main():
     global _offset
+    # descarta a fila antiga: ao reiniciar, o Telegram reentrega mensagens não
+    # confirmadas (ex.: um /editar velho reprocessado como se fosse agora). Aqui
+    # a gente pula pro fim da fila e só processa o que chegar DAQUI pra frente.
+    try:
+        pendentes = notify.get_updates(offset=-1, timeout=0)
+        if pendentes:
+            _offset = pendentes[-1]["update_id"] + 1
+    except Exception:
+        pass
     try:
         notify.send_message("🤖 Bot do Thunder Games online. Manda /simular pra ver as ideias.")
     except Exception:
