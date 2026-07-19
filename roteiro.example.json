@@ -1,0 +1,39 @@
+{
+  "project": "video_001",
+  "output_name": "final.mp4",
+
+  "resolution": { "width": 1080, "height": 1920 },
+  "fps": 30,
+  "layout": "cover",
+
+  "video": { "path": "assets/video.mp4", "start": 3.8 },
+  "narration": "assets/narration.wav",
+  "music": { "path": "assets/music.mp3", "volume": 0.12 },
+  "narration_volume": 1.0,
+
+  "duration": null,
+
+  "subtitles": {
+    "enabled": true,
+    "mode": "karaoke",
+    "source": "script",
+    "text_path": "assets/narration.txt",
+    "align": true,
+    "karaoke": { "font_name": "Anton", "font_size": 92, "margin_v": 540, "words_per_block": 3 },
+    "path": "output/subtitles.srt"
+  },
+
+  "animation": { "slide_seconds": 0.28, "easing": "ease_out" },
+
+  "overlay_sfx": [
+    "assets/whoosh1.mp3",
+    "assets/whoosh2.mp3",
+    "assets/whoosh3.mp3"
+  ],
+
+  "overlays": [
+    { "id": "confuso",     "path": "assets/personagem/confuso.png",     "start": 0.3, "end": 6.0,  "width_frac": 0.46, "position": "left",   "slide_in": true },
+    { "id": "anotando",    "path": "assets/personagem/anotando.png",    "start": 6.0, "end": 11.0, "width_frac": 0.46, "position": "right",  "slide_in": true },
+    { "id": "boquiaberto", "path": "assets/personagem/boquiaberto.png", "start": 11.0,"end": 16.0, "width_frac": 0.46, "position": "center", "slide_in": true }
+  ]
+}

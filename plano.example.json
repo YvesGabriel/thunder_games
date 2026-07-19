@@ -1,0 +1,35 @@
+{
+  "project": "core_keeper",
+  "output_name": "final.mp4",
+  "game": "Core Keeper",
+
+  "video": "assets/video.mp4",
+  "video_start": 3.8,
+  "narration": "assets/narration.wav",
+  "narration_text": "assets/narration.txt",
+
+  "music_mood": "adventure",
+  "music_library": "../../Biblioteca/Musicas",
+  "music_volume": 0.12,
+  "whooshes_dir": "../../Biblioteca/Efeitos",
+
+  "voicebox": { "profile": "Yves", "language": "pt", "engine": "qwen3_tts" },
+
+  "expressions": [
+    { "image": "../../Biblioteca/Personagem/confuso.png",            "position": "left" },
+    { "image": "../../Biblioteca/Personagem/anotando animado.png",   "position": "right" },
+    { "image": "../../Biblioteca/Personagem/muito impressionado.png","position": "left" },
+    { "image": "../../Biblioteca/Personagem/sorriso engraçado.png",  "position": "right" },
+    { "image": "../../Biblioteca/Personagem/boquiaberto.png",        "position": "center" },
+    { "image": "../../Biblioteca/Personagem/dando joinha.png",       "position": "right" }
+  ],
+
+  "publish": {
+    "title": "Terraria + Stardew Valley, mas debaixo da terra! 🤯 {game} #Shorts",
+    "description": "Terraria encontrando Stardew Valley… só que TUDO debaixo da terra 👀\n\nMineração e sobrevivência co-op pra até 8 jogadores, com chefões gigantes. Agora no Switch 2 a 60fps.\n\n🎮 {game} — Steam e Switch 2\n\n👉 Segue o Thunder Games pra mais achados de games!\n📸 Instagram: {instagram}\n🎵 TikTok: {tiktok}\n\n#Shorts #CoreKeeper #games #jogosindie #coop #Switch2",
+    "tags": ["core keeper", "jogos", "jogos indie", "coop", "survival", "switch 2", "games", "shorts"],
+    "comment": "Confesso que subestimei esse jogo até cair na caverna e não conseguir mais parar 😅 Você encara sozinho ou chama a galera pro co-op? 👇",
+    "instagram": "@thunder_games_8",
+    "tiktok": "@thunder_games_8"
+  }
+}

@@ -1,0 +1,10 @@
+# Dependências Python do video_auto_editor
+#
+# FFmpeg NÃO é instalado por aqui — é um programa de sistema.
+# Veja o README (seção "Instalar/verificar o FFmpeg").
+#
+# openai-whisper é usado apenas no comando `transcribe` (gerar legendas).
+# Ele puxa o PyTorch, que é grande. Se você já tem uma .srt pronta,
+# pode usar o programa sem instalar o whisper.
+
+openai-whisper>=20231117

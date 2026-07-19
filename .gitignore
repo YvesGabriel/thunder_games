@@ -1,0 +1,53 @@
+# =========================================================
+#  Thunder Games — .gitignore
+# =========================================================
+
+# --- SEGREDOS E TOKENS (NUNCA versionar) -----------------
+secrets/
+credentials.json
+*token*.json
+*.key
+*.pem
+
+# --- Ambiente Python -------------------------------------
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# --- Dados / projetos em produção (não são código) -------
+projects/
+ideias/_debug_resposta.txt
+ideias/usados.json
+Catalogo.xlsx
+
+# --- Mídia gerada / pesada -------------------------------
+*.mp4
+*.mkv
+*.webm
+*.mov
+*.avi
+*.m4v
+*.wav
+*.mp3
+*.m4a
+*.srt
+*.ass
+
+# --- Saídas de análise (transcrições de referência) ------
+analise/
+
+# --- Sistema operacional ---------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs / temporários ----------------------------------
+*.log
+tmp/
+temp/
+tgvid_*/
