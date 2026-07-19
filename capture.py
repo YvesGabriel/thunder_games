@@ -50,11 +50,8 @@ _MOVIE = ["prime video", "netflix", "in theaters", "only in theaters", "movie",
 
 
 def _api_key():
-    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "secrets", "credentials.json")
-    try:
-        return json.load(open(p, encoding="utf-8"))["youtube"]["api_key"]
-    except Exception:
-        return None
+    from config import secrets
+    return secrets.youtube().get("api_key")
 
 
 _ISO = re.compile(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?")

@@ -32,11 +32,13 @@ for _s in (sys.stdout, sys.stderr):        # utf-8: evita quebra ao imprimir ace
     except Exception:
         pass
 
+from config import settings
+from config import secrets as _secrets
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-SECRETS = os.path.join(HERE, "secrets", "credentials.json")
-IDEIAS = os.path.join(HERE, "ideias", "ideias_atual.json")
-USADOS = os.path.join(HERE, "ideias", "usados.json")
-PERSONAGEM = os.path.join(os.path.dirname(HERE), "Biblioteca", "Personagem")
+IDEIAS = os.path.join(settings.IDEIAS_DIR, "ideias_atual.json")
+USADOS = os.path.join(settings.IDEIAS_DIR, "usados.json")
+PERSONAGEM = settings.PERSONAGEM
 
 
 def _expressoes_disponiveis():
@@ -87,12 +89,7 @@ Switch, ou curiosidades de games). Variedade de gêneros entre as 5 sugestões."
 
 
 def _cli_cfg():
-    c = {}
-    try:
-        c = json.load(open(SECRETS, encoding="utf-8")).get("claude_cli", {}) or {}
-    except Exception:
-        pass
-    return c.get("command", "claude"), (c.get("model") or "")
+    return _secrets.claude_cli()
 
 
 def _resolve(cmd):

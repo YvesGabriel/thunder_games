@@ -17,12 +17,11 @@ import urllib.parse
 import urllib.request
 import uuid
 
-_SECRETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "secrets", "credentials.json")
+from config import secrets as _secrets
 
 
 def _creds():
-    t = json.load(open(_SECRETS, encoding="utf-8"))["telegram"]
-    return t["bot_token"], str(t["chat_id"])
+    return _secrets.telegram()
 
 
 def _api(method):

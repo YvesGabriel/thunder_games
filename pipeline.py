@@ -35,9 +35,11 @@ for _s in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-BIBLIOTECA = os.path.join(os.path.dirname(HERE), "Biblioteca")
-VOICEBOX_URL = "http://127.0.0.1:17493"
+from config import settings
+
+HERE = settings.ROOT
+BIBLIOTECA = settings.BIBLIOTECA
+VOICEBOX_URL = settings.VOICEBOX_URL
 
 # Padrão do último vídeo aprovado
 STD_SUBTITLES = {
@@ -177,7 +179,7 @@ def cmd_new(args):
         "music_mood": args.mood,
         "music_library": os.path.join(BIBLIOTECA, "Musicas"),
         "whooshes_dir": os.path.join(BIBLIOTECA, "Efeitos"),
-        "voicebox": {"profile": "Yves", "profile_id": "01d97944-3ffc-48ff-9a3a-704b2ccf434b", "language": "pt"},
+        "voicebox": {"profile": settings.VOICE_PROFILE_NAME, "profile_id": settings.VOICE_PROFILE_ID, "language": "pt"},
         # o Claude escolhe as expressões junto do roteiro (nomes da Biblioteca/Personagem);
         # se ficar vazio, o sistema sorteia da biblioteca automaticamente.
         "expressions": [],
