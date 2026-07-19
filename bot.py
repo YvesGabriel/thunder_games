@@ -25,6 +25,7 @@ import urllib.request
 
 import notify
 import brain
+from channel import publicacao
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PY = sys.executable
@@ -295,6 +296,29 @@ def editar_e_enviar(rel, game=None):
     else:
         notify.send_message(f"⚠️ Não enviei as versões, mas estão em {rel}/candidatos/. "
                             "Responda 'pick N' pra marcar a melhor.")
+    enviar_kit(rel, game)
+
+
+def enviar_kit(rel, game):
+    """Gera título/descrição/tags/comentário das 3 plataformas e manda no Telegram."""
+    proj = os.path.join(HERE, rel)
+    roteiro_txt = ""
+    p = os.path.join(proj, "assets", "narration.txt")
+    if os.path.exists(p):
+        roteiro_txt = open(p, encoding="utf-8").read().strip()
+    notify.send_message("📝 Gerando os textos de publicação (YouTube, TikTok, Instagram)...")
+    try:
+        kit = publicacao.gerar_kit(game, roteiro_txt)
+    except Exception as e:
+        notify.send_message(f"⚠️ Não consegui gerar os textos de publicação ({e}).")
+        return
+    try:
+        json.dump(kit, open(os.path.join(proj, "publicacao.json"), "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=2)   # salva na pasta do jogo pra não perder
+    except Exception:
+        pass
+    for msg in publicacao.formatar_telegram(kit, game):
+        notify.send_message(msg)
 
 
 def handle_pick(num):

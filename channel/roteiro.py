@@ -105,17 +105,39 @@ def _normalizar_expressoes(lista):
 # ---------------------------------------------------------------------------
 # música por clima + montagem do roteiro.json
 # ---------------------------------------------------------------------------
+# sinônimos de clima -> pasta real em Biblioteca/Musicas
+_MOOD_ALIAS = {
+    "chill": "cozy", "relax": "cozy", "calm": "cozy", "calmo": "cozy", "tranquilo": "cozy",
+    "tense": "horror", "terror": "horror", "medo": "horror",
+    "acao": "action", "ação": "action", "aventura": "adventure",
+    "epico": "epic", "épico": "epic", "engraçado": "funny", "comedia": "funny", "comédia": "funny",
+}
+
+
 def resolve_music(project_dir, plano):
     m = plano.get("music")
     if m:
         return _abs(project_dir, m)
-    mood = plano.get("music_mood", "adventure")
-    lib = plano.get("music_library") or os.path.join(BIBLIOTECA, "Musicas")
-    folder = os.path.join(_abs(project_dir, lib), mood)
-    tracks = sorted(glob.glob(os.path.join(folder, "*.mp3")))
-    if not tracks:
-        raise RuntimeError(f"Sem música para o clima '{mood}' em {folder}. Baixe uma faixa (Pixabay).")
-    return tracks[0]
+    lib_dir = _abs(project_dir, plano.get("music_library") or os.path.join(BIBLIOTECA, "Musicas"))
+    mood = (plano.get("music_mood") or "adventure").strip().lower()
+
+    def _tracks(md):
+        return sorted(glob.glob(os.path.join(lib_dir, md, "*.mp3"))) if md else []
+
+    # tenta: o clima pedido -> sinônimo conhecido -> 'adventure' (padrão)
+    for md in (mood, _MOOD_ALIAS.get(mood), "adventure"):
+        tracks = _tracks(md)
+        if tracks:
+            if md != mood:
+                log(f"Clima '{mood}' sem música — usando '{md}'.")
+            return tracks[0]
+
+    # último recurso: qualquer faixa de qualquer clima
+    qualquer = sorted(glob.glob(os.path.join(lib_dir, "*", "*.mp3")))
+    if qualquer:
+        log(f"Clima '{mood}' sem música — usando uma faixa disponível.")
+        return qualquer[0]
+    raise RuntimeError(f"Sem nenhuma música em {lib_dir}. Baixe faixas (Pixabay), uma por clima.")
 
 
 def build_roteiro(project_dir, plano, video_path=None, output_name=None):

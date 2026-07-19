@@ -74,7 +74,8 @@ REGRAS DO ROTEIRO (obrigatórias):
   em inglês permitido é o do jogo, dito só uma vez no fecho.
 - Nada de números de versão, datas faladas, nem termos técnicos.
 
-mood: escolha 1 entre horror, funny, action, adventure, chill (define a música).
+mood: escolha 1 entre horror, funny, action, adventure, cozy, epic (define a música).
+(cozy = clima calmo/aconchegante; epic = grandioso/épico.)
 
 Para cada jogo, gere também um bloco "publish":
 - title: chamativo, em pt-BR, termina com " #Shorts".
@@ -148,7 +149,7 @@ def curar(n=5):
         f"NÃO repita nenhum destes jogos já usados:\n{lista}"
         + _bloco_expressoes() + "\n\n"
         "Responda SOMENTE com JSON válido (sem comentários, sem texto fora do JSON), no formato:\n"
-        '{"sugestoes":[{"n":1,"game":"...","mood":"horror|funny|action|adventure|chill",'
+        '{"sugestoes":[{"n":1,"game":"...","mood":"horror|funny|action|adventure|cozy|epic",'
         '"roteiro":"...","expressions":["nome1","nome2","..."],'
         '"publish":{"title":"... #Shorts","description":"...",'
         '"tags":["..."],"comment":"...","instagram":"@thunder_games_8","tiktok":"@thunder_games_8"}}]}'
