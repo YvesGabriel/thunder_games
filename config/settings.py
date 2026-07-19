@@ -20,6 +20,7 @@ IDEIAS_DIR = os.path.join(ROOT, "ideias")
 
 # --- Segredos ------------------------------------------------------------
 SECRETS_FILE = os.path.join(ROOT, "secrets", "credentials.json")
+YOUTUBE_TOKEN_FILE = os.path.join(ROOT, "secrets", "youtube_token.json")
 
 # --- VoiceBox (voz clonada) ----------------------------------------------
 VOICEBOX_URL = "http://127.0.0.1:17493"

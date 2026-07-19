@@ -398,17 +398,14 @@ def cmd_publish(project_dir, plano, privacy="private"):
 
     desc = pub.get("description", "").format(game=game, instagram=pub.get("instagram", ""),
                                              tiktok=pub.get("tiktok", ""))
-    desc_path = os.path.join(project_dir, "output", "descricao.txt")
-    open(desc_path, "w", encoding="utf-8").write(desc)
+    open(os.path.join(project_dir, "output", "descricao.txt"), "w", encoding="utf-8").write(desc)
     comment = pub.get("comment", "").format(game=game)
     open(os.path.join(project_dir, "output", "comentario.txt"), "w", encoding="utf-8").write(comment)
 
-    tags = ",".join(pub.get("tags", []))
-    up = os.path.join(HERE, "publish", "youtube_upload.py")
-    cmd = [sys.executable, up, "upload", "--video", video, "--title", pub.get("title", game),
-           "--description-file", desc_path, "--tags", tags, "--privacy", privacy]
+    from services import youtube_upload
     log(f"Publicando no YouTube (privacidade: {privacy})...")
-    code = subprocess.run(cmd, cwd=HERE).returncode
+    code = youtube_upload.upload(video, pub.get("title", game), description=desc,
+                                 tags=pub.get("tags", []), privacy=privacy, on_log=log)
     if code == 0:
         log("Publicado. Comentário pra FIXAR manualmente no vídeo:")
         print("\n  " + comment + "\n")
