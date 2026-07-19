@@ -364,6 +364,7 @@ def handle(text):
             "/captar <slug> — baixa os trailers\n"
             "/narrar <slug> — gera a voz (VoiceBox aberto)\n"
             "/editar <slug> — edita as 4 versões e envia\n"
+            "/kit <slug> — pega os textos de publicação (YT/TikTok/Insta)\n"
             "pick N — marca a melhor versão")
         return
     if t in ("/simular", "/ideias", "/sugestoes"):
@@ -388,6 +389,20 @@ def handle(text):
     if me:
         rel, _, game = _resolve_rel(me.group(1))
         editar_e_enviar(rel, game)
+        return
+    mk = re.match(r"/kit\s+(.+)", text.strip(), re.IGNORECASE)
+    if mk:
+        rel, proj, game = _resolve_rel(mk.group(1))
+        saved = os.path.join(proj, "publicacao.json")
+        if os.path.exists(saved):        # reenvia o já gerado (sem chamar o Claude)
+            try:
+                kit = json.load(open(saved, encoding="utf-8"))
+                for msg in publicacao.formatar_telegram(kit, game):
+                    notify.send_message(msg)
+                return
+            except Exception:
+                pass
+        enviar_kit(rel, game)            # não existe ainda -> gera na hora
         return
     m = re.match(r"pick\s+(\d+)", t)
     if m:
