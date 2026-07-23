@@ -351,6 +351,28 @@ def listar_projetos():
     notify.send_message("\n".join(linhas))
 
 
+def handle_atualizar():
+    """git pull + reinicia o bot com o código novo (deploy pelo Telegram)."""
+    notify.send_message("⬇️ Puxando atualização (git pull)...")
+    p = subprocess.run(["git", "pull"], cwd=HERE, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    out = ((p.stdout or "") + "\n" + (p.stderr or "")).strip()
+    if p.returncode != 0:
+        notify.send_message("⚠️ git pull falhou:\n" + (out[-800:] or "(sem detalhes)") +
+                            "\n\nSe houver edição local no Windows, ela dá conflito — "
+                            "esta máquina deve ser só 'pull'.")
+        return
+    if "up to date" in out.lower() or "atualizado" in out.lower():
+        notify.send_message("✅ Já estava na última versão — nada pra reiniciar.")
+        return
+    notify.send_message("✅ Atualizado:\n" + out[-800:] + "\n\n🔄 Reiniciando o bot...")
+    try:
+        os.execv(sys.executable, [sys.executable] + sys.argv)   # recarrega o código novo
+    except Exception as e:
+        notify.send_message(f"⚠️ Puxei a atualização, mas falhei ao reiniciar sozinho ({e}). "
+                            "Feche e reabra o bot manualmente.")
+
+
 def handle(text):
     t = text.strip().lower()
     if t in ("/start", "/ajuda", "/help"):
@@ -365,6 +387,7 @@ def handle(text):
             "/narrar <slug> — gera a voz (VoiceBox aberto)\n"
             "/editar <slug> — edita as 4 versões e envia\n"
             "/kit <slug> — pega os textos de publicação (YT/TikTok/Insta)\n"
+            "/atualizar — git pull + reinicia (deploy do código novo)\n"
             "pick N — marca a melhor versão")
         return
     if t in ("/simular", "/ideias", "/sugestoes"):
@@ -372,6 +395,9 @@ def handle(text):
         return
     if t in ("/projetos", "/projs", "/lista"):
         listar_projetos()
+        return
+    if t in ("/atualizar", "/deploy", "/update"):
+        handle_atualizar()
         return
     mc = re.match(r"/captar\s+(.+)", text.strip(), re.IGNORECASE)
     if mc:
