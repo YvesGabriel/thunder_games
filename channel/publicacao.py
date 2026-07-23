@@ -7,26 +7,10 @@ formata pra enviar no Telegram (uma mensagem por plataforma, fácil de copiar).
 import json
 import re
 
+from config import prompts
 from services import claude
 
-REGRAS_PUB = """Você escreve o KIT DE PUBLICAÇÃO de um vídeo curto (Short/Reels/TikTok)
-do canal "Thunder Games" (@thunder_games_8), que apresenta jogos. Público brasileiro.
-Tom chamativo, em português-BR, com emojis com moderação.
-
-Gere para TRÊS plataformas:
-
-YOUTUBE:
-- title: chamativo, termina com " #Shorts".
-- description: 2–3 linhas sobre o jogo + "🎮 <nome do jogo>" + este bloco fixo:
-  "\\n\\n👉 Segue o Thunder Games pra mais achados de games!\\n📸 Instagram: @thunder_games_8\\n🎵 TikTok: @thunder_games_8\\n\\n#Shorts " + 3 a 5 hashtags pt-BR relevantes.
-- tags: lista de 5–6 tags pt-BR.
-- comment: comentário pra FIXAR, com uma pergunta que engaje.
-
-TIKTOK:
-- caption: curta e com pegada de trend + "🎮 <jogo>" + hashtags (inclua #fyp #foryou e 2–3 pt-BR).
-
-INSTAGRAM:
-- caption: 2 linhas + "🎮 <jogo>" + "Segue o @thunder_games_8" + hashtags (#reels e 3–4 pt-BR)."""
+# As regras da publicação vivem em prompts/publicacao.md (editável sem tocar no código).
 
 _SCHEMA = ('{"youtube":{"title":"... #Shorts","description":"...","tags":["..."],"comment":"..."},'
            '"tiktok":{"caption":"..."},"instagram":{"caption":"..."}}')
@@ -45,7 +29,7 @@ def gerar_kit(game, roteiro=""):
     """Gera o kit de publicação (dict) pras 3 plataformas."""
     prompt = (f"Jogo: {game}\n\nRoteiro do vídeo (pra você entender o conteúdo):\n{roteiro}\n\n"
               "Gere o kit de publicação. Responda SOMENTE com JSON válido no formato:\n" + _SCHEMA)
-    return _json_do_texto(claude.call(prompt, system=REGRAS_PUB))
+    return _json_do_texto(claude.call(prompt, system=prompts.load("publicacao")))
 
 
 def formatar_telegram(kit, game):

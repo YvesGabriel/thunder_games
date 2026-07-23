@@ -17,6 +17,7 @@ MUSICAS = os.path.join(BIBLIOTECA, "Musicas")
 EFEITOS = os.path.join(BIBLIOTECA, "Efeitos")
 PROJECTS_DIR = os.path.join(ROOT, "projects")
 IDEIAS_DIR = os.path.join(ROOT, "ideias")
+PROMPTS_DIR = os.path.join(ROOT, "prompts")
 
 # --- Segredos ------------------------------------------------------------
 SECRETS_FILE = os.path.join(ROOT, "secrets", "credentials.json")
